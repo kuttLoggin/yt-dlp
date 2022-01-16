@@ -211,6 +211,7 @@ class TikTokBaseIE(InfoExtractor):
             'uploader_url': user_url,
             'track': music_track,
             'track_id': str_or_none(music_info.get('id')),
+            'track_duration': int_or_none(music_info.get('duration')),
             'track_url': str_or_none(music_info.get('play_url', {}).get('uri')),
             'album': str_or_none(music_info.get('album')) or None,
             'artist': music_author,
