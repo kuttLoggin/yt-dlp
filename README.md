@@ -71,7 +71,7 @@ yt-dlp is a [youtube-dl](https://github.com/ytdl-org/youtube-dl) fork based on t
 
 # NEW FEATURES
 
-* Based on **youtube-dl 2021.12.17 [commit/5014bd6](https://github.com/ytdl-org/youtube-dl/commit/5014bd67c22b421207b2650d4dc874b95b36dda1)** and **youtube-dlc 2020.11.11-3 [commit/f9401f2](https://github.com/blackjack4494/yt-dlc/commit/f9401f2a91987068139c5f757b12fc711d4c0cee)**: You get all the features and patches of [youtube-dlc](https://github.com/blackjack4494/yt-dlc) in addition to the latest [youtube-dl](https://github.com/ytdl-org/youtube-dl)
+* Based on **youtube-dl 2021.12.17 [commit/5add3f4](https://github.com/ytdl-org/youtube-dl/commit/5add3f4373287e6346ca3551239edab549284db3)** and **youtube-dlc 2020.11.11-3 [commit/f9401f2](https://github.com/blackjack4494/yt-dlc/commit/f9401f2a91987068139c5f757b12fc711d4c0cee)**: You get all the features and patches of [youtube-dlc](https://github.com/blackjack4494/yt-dlc) in addition to the latest [youtube-dl](https://github.com/ytdl-org/youtube-dl)
 
 * **[SponsorBlock Integration](#sponsorblock-options)**: You can mark/remove sponsor sections in youtube videos by utilizing the [SponsorBlock](https://sponsor.ajay.app) API
 
@@ -379,8 +379,9 @@ You can also fork the project on github and run your fork's [build workflow](.gi
     --proxy URL                      Use the specified HTTP/HTTPS/SOCKS proxy.
                                      To enable SOCKS proxy, specify a proper
                                      scheme. For example
-                                     socks5://127.0.0.1:1080/. Pass in an empty
-                                     string (--proxy "") for direct connection
+                                     socks5://user:pass@127.0.0.1:1080/. Pass in
+                                     an empty string (--proxy "") for direct
+                                     connection
     --socket-timeout SECONDS         Time to wait before giving up, in seconds
     --source-address IP              Client-side IP address to bind to
     -4, --force-ipv4                 Make all connections via IPv4
@@ -393,7 +394,7 @@ You can also fork the project on github and run your fork's [build workflow](.gi
                                      option is not present) is used for the
                                      actual downloading
     --geo-bypass                     Bypass geographic restriction via faking
-                                     X-Forwarded-For HTTP header
+                                     X-Forwarded-For HTTP header (default)
     --no-geo-bypass                  Do not bypass geographic restriction via
                                      faking X-Forwarded-For HTTP header
     --geo-bypass-country CODE        Force bypass geographic restriction with
@@ -685,6 +686,12 @@ You can also fork the project on github and run your fork's [build workflow](.gi
                                      --use-postprocessor, and "video" (default).
                                      Implies --quiet and --simulate (unless
                                      --no-simulate is used). This option can be
+                                     used multiple times
+    --print-to-file [WHEN:]TEMPLATE FILE
+                                     Append given template to the file. The
+                                     values of WHEN and TEMPLATE are same as
+                                     that of --print. FILE uses the same syntax
+                                     as the output template. This option can be
                                      used multiple times
     -j, --dump-json                  Quiet, but print JSON information for each
                                      video. Simulate unless --no-simulate is
@@ -1043,7 +1050,7 @@ You can configure yt-dlp by placing any supported command line option to a confi
 
 1. **Main Configuration**: The file given by `--config-location`
 1. **Portable Configuration**: `yt-dlp.conf` in the same directory as the bundled binary. If you are running from source-code (`<root dir>/yt_dlp/__main__.py`), the root directory is used instead.
-1. **Home Configuration**: `yt-dlp.conf` in the home path given by `-P "home:<path>"`, or in the current directory if no such path is given
+1. **Home Configuration**: `yt-dlp.conf` in the home path given by `-P`, or in the current directory if no such path is given
 1. **User Configuration**:
     * `%XDG_CONFIG_HOME%/yt-dlp/config` (recommended on Linux/macOS)
     * `%XDG_CONFIG_HOME%/yt-dlp.conf`
@@ -1130,12 +1137,13 @@ To summarize, the general syntax for a field is:
 %(name[.keys][addition][>strf][,alternate][&replacement][|default])[flags][width][.precision][length]type
 ```
 
-Additionally, you can set different output templates for the various metadata files separately from the general output template by specifying the type of file followed by the template separated by a colon `:`. The different file types supported are `subtitle`, `thumbnail`, `description`, `annotation` (deprecated), `infojson`, `link`, `pl_thumbnail`, `pl_description`, `pl_infojson`, `chapter`, `pl_video`. For example, `-o "%(title)s.%(ext)s" -o "thumbnail:%(title)s\%(title)s.%(ext)s"`  will put the thumbnails in a folder with the same name as the video. If any of the templates (except default) is empty, that type of file will not be written. Eg: `--write-thumbnail -o "thumbnail:"` will write thumbnails only for playlists and not for video.
+Additionally, you can set different output templates for the various metadata files separately from the general output template by specifying the type of file followed by the template separated by a colon `:`. The different file types supported are `subtitle`, `thumbnail`, `description`, `annotation` (deprecated), `infojson`, `link`, `pl_thumbnail`, `pl_description`, `pl_infojson`, `chapter`, `pl_video`. For example, `-o "%(title)s.%(ext)s" -o "thumbnail:%(title)s\%(title)s.%(ext)s"`  will put the thumbnails in a folder with the same name as the video. If any of the templates is empty, that type of file will not be written. Eg: `--write-thumbnail -o "thumbnail:"` will write thumbnails only for playlists and not for video.
 
 The available fields are:
 
  - `id` (string): Video identifier
  - `title` (string): Video title
+ - `fulltitle` (string): Video title ignoring live timestamp and generic title
  - `url` (string): Video URL
  - `ext` (string): Video filename extension
  - `alt_title` (string): A secondary title of the video
@@ -1191,16 +1199,16 @@ The available fields are:
  - `protocol` (string): The protocol that will be used for the actual download
  - `extractor` (string): Name of the extractor
  - `extractor_key` (string): Key name of the extractor
- - `epoch` (numeric): Unix epoch when creating the file
+ - `epoch` (numeric): Unix epoch of when the information extraction was completed
  - `autonumber` (numeric): Number that will be increased with each download, starting at `--autonumber-start`
  - `video_autonumber` (numeric): Number that will be increased with each video
  - `n_entries` (numeric): Total number of extracted items in the playlist
- - `playlist` (string): Name or id of the playlist that contains the video
+ - `playlist_id` (string): Identifier of the playlist that contains the video
+ - `playlist_title` (string): Name of the playlist that contains the video
+ - `playlist` (string): `playlist_id` or `playlist_title`
  - `playlist_count` (numeric): Total number of items in the playlist. May not be known if entire playlist is not extracted
  - `playlist_index` (numeric): Index of the video in the playlist padded with leading zeros according the final index
  - `playlist_autonumber` (numeric): Position of the video in the playlist download queue padded with leading zeros according to the total length of the playlist
- - `playlist_id` (string): Playlist identifier
- - `playlist_title` (string): Playlist title
  - `playlist_uploader` (string): Full name of the playlist uploader
  - `playlist_uploader_id` (string): Nickname or id of the playlist uploader
  - `webpage_url` (string): A URL to the video webpage which if given to yt-dlp should allow to get the same result again
@@ -1545,7 +1553,7 @@ $ yt-dlp -S "proto"
 
 
 # Download the best video with h264 codec, or the best video if there is no such video
-$ yt-dlp -f "(bv*+ba/b)[vcodec^=avc1] / (bv*+ba/b)"
+$ yt-dlp -f "(bv*[vcodec^=avc1]+ba) / (bv*+ba/b)"
 
 # Download the best video with best codec no better than h264,
 # or the best video with worst codec if there is no such video
@@ -1663,6 +1671,11 @@ The following extractors use this feature:
 * `language`: Languages to extract. Eg: `crunchyroll:language=jaJp`
 * `hardsub`: Which hard-sub versions to extract. Eg: `crunchyroll:hardsub=None,enUS`
 
+#### crunchyroll:beta
+* `format`: Which stream type(s) to extract. Default is `adaptive_hls` Eg: `crunchyrollbeta:format=vo_adaptive_hls`
+    * Potentially useful values include `adaptive_hls`, `adaptive_dash`, `vo_adaptive_hls`, `vo_adaptive_dash`, `download_hls`, `trailer_hls`, `trailer_dash`
+* `hardsub`: Preference order for which hardsub versions to extract. Default is `None` (no hardsubs). Eg: `crunchyrollbeta:hardsub=en-US,None`
+
 #### vikichannel
 * `video_types`: Types of videos to download - one or more of `episodes`, `movies`, `clips`, `trailers`
 
@@ -1676,6 +1689,10 @@ The following extractors use this feature:
 * `res`: resolution to ignore - one or more of `sd`, `hd`, `fhd`
 * `vcodec`: vcodec to ignore - one or more of `h264`, `h265`, `dvh265`
 * `dr`: dynamic range to ignore - one or more of `sdr`, `hdr10`, `dv`
+
+#### tiktok
+* `app_version`: App version to call mobile APIs with - should be set along with `manifest_app_version`. (e.g. `20.2.1`)
+* `manifest_app_version`: Numeric app version to call mobile APIs with. (e.g. `221`)
 
 NOTE: These options may be changed/removed in the future without concern for backward compatibility
 

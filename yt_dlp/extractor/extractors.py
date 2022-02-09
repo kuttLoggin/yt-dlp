@@ -361,9 +361,19 @@ from .dplay import (
     DPlayIE,
     DiscoveryPlusIE,
     HGTVDeIE,
+    GoDiscoveryIE,
+    TravelChannelIE,
+    CookingChannelIE,
+    HGTVUsaIE,
+    FoodNetworkIE,
+    InvestigationDiscoveryIE,
+    DestinationAmericaIE,
+    AmHistoryChannelIE,
     ScienceChannelIE,
     DIYNetworkIE,
+    DiscoveryLifeIE,
     AnimalPlanetIE,
+    TLCIE,
     DiscoveryPlusIndiaIE,
     DiscoveryNetworksDeIE,
     DiscoveryPlusItalyIE,
@@ -387,11 +397,6 @@ from .dumpert import DumpertIE
 from .defense import DefenseGouvFrIE
 from .digitalconcerthall import DigitalConcertHallIE
 from .discovery import DiscoveryIE
-from .discoverygo import (
-    DiscoveryGoIE,
-    DiscoveryGoPlaylistIE,
-)
-from .discoveryvr import DiscoveryVRIE
 from .disney import DisneyIE
 from .dispeak import DigitallySpeakingIE
 from .doodstream import DoodStreamIE
@@ -432,6 +437,11 @@ from .eporner import EpornerIE
 from .eroprofile import (
     EroProfileIE,
     EroProfileAlbumIE,
+)
+from .ertgr import (
+    ERTFlixCodenameIE,
+    ERTFlixIE,
+    ERTWebtvEmbedIE,
 )
 from .escapist import EscapistIE
 from .espn import (
@@ -881,6 +891,12 @@ from .mtv import (
 )
 from .muenchentv import MuenchenTVIE
 from .musescore import MuseScoreIE
+from .musicdex import (
+    MusicdexSongIE,
+    MusicdexAlbumIE,
+    MusicdexArtistIE,
+    MusicdexPlaylistIE,
+)
 from .mwave import MwaveIE, MwaveMeetGreetIE
 from .mxplayer import (
     MxplayerIE,
@@ -968,6 +984,7 @@ from .nexx import (
     NexxIE,
     NexxEmbedIE,
 )
+from .nfb import NFBIE
 from .nfhsnetwork import NFHSNetworkIE
 from .nfl import (
     NFLIE,
@@ -1829,7 +1846,10 @@ from .vimeo import (
     VimeoWatchLaterIE,
     VHXEmbedIE,
 )
-from .vimm import VimmIE
+from .vimm import (
+    VimmIE,
+    VimmRecordingIE,
+)
 from .vimple import VimpleIE
 from .vine import (
     VineIE,
@@ -1976,6 +1996,7 @@ from .yandexmusic import (
 )
 from .yandexvideo import (
     YandexVideoIE,
+    YandexVideoPreviewIE,
     ZenYandexIE,
     ZenYandexChannelIE,
 )
@@ -2008,6 +2029,7 @@ from .youtube import (
     YoutubeSearchDateIE,
     YoutubeSearchIE,
     YoutubeSearchURLIE,
+    YoutubeMusicSearchURLIE,
     YoutubeSubscriptionsIE,
     YoutubeTruncatedIDIE,
     YoutubeTruncatedURLIE,
