@@ -103,6 +103,7 @@ from .videopress import VideoPressIE
 from .rutube import RutubeIE
 from .glomex import GlomexEmbedIE
 from .megatvcom import MegaTVComEmbedIE
+from .ant1newsgr import Ant1NewsGrEmbedIE
 from .limelight import LimelightBaseIE
 from .anvato import AnvatoIE
 from .washingtonpost import WashingtonPostIE
@@ -145,6 +146,7 @@ from .tvp import TVPEmbedIE
 from .blogger import BloggerIE
 from .mainstreaming import MainStreamingIE
 from .gfycat import GfycatIE
+from .panopto import PanoptoBaseIE
 
 
 class GenericIE(InfoExtractor):
@@ -2497,6 +2499,15 @@ class GenericIE(InfoExtractor):
                 'id': '?vid=2295'
             },
             'playlist_count': 9
+        },
+        {
+            # Panopto embeds
+            'url': 'https://www.monash.edu/learning-teaching/teachhq/learning-technologies/panopto/how-to/insert-a-quiz-into-a-panopto-video',
+            'info_dict': {
+                'title': 'Insert a quiz into a Panopto video',
+                'id': 'insert-a-quiz-into-a-panopto-video'
+            },
+            'playlist_count': 1
         }
     ]
 
@@ -3544,6 +3555,12 @@ class GenericIE(InfoExtractor):
             return self.playlist_from_matches(
                 megatvcom_urls, video_id, video_title, ie=MegaTVComEmbedIE.ie_key())
 
+        # Look for ant1news.gr embeds
+        ant1newsgr_urls = list(Ant1NewsGrEmbedIE._extract_urls(webpage))
+        if ant1newsgr_urls:
+            return self.playlist_from_matches(
+                ant1newsgr_urls, video_id, video_title, ie=Ant1NewsGrEmbedIE.ie_key())
+
         # Look for WashingtonPost embeds
         wapo_urls = WashingtonPostIE._extract_urls(webpage)
         if wapo_urls:
@@ -3716,6 +3733,9 @@ class GenericIE(InfoExtractor):
         if gfycat_urls:
             return self.playlist_from_matches(gfycat_urls, video_id, video_title, ie=GfycatIE.ie_key())
 
+        panopto_urls = PanoptoBaseIE._extract_urls(webpage)
+        if panopto_urls:
+            return self.playlist_from_matches(panopto_urls, video_id, video_title)
         # Look for HTML5 media
         entries = self._parse_html5_media_entries(url, webpage, video_id, m3u8_id='hls')
         if entries:
@@ -3991,12 +4011,16 @@ class GenericIE(InfoExtractor):
 
             # here's a fun little line of code for you:
             video_id = os.path.splitext(video_id)[0]
+            headers = {
+                'referer': full_response.geturl()
+            }
 
             entry_info_dict = {
                 'id': video_id,
                 'uploader': video_uploader,
                 'title': video_title,
                 'age_limit': age_limit,
+                'http_headers': headers,
             }
 
             if RtmpIE.suitable(video_url):
@@ -4014,11 +4038,11 @@ class GenericIE(InfoExtractor):
             elif ext == 'xspf':
                 return self.playlist_result(self._extract_xspf_playlist(video_url, video_id), video_id)
             elif ext == 'm3u8':
-                entry_info_dict['formats'], entry_info_dict['subtitles'] = self._extract_m3u8_formats_and_subtitles(video_url, video_id, ext='mp4')
+                entry_info_dict['formats'], entry_info_dict['subtitles'] = self._extract_m3u8_formats_and_subtitles(video_url, video_id, ext='mp4', headers=headers)
             elif ext == 'mpd':
-                entry_info_dict['formats'], entry_info_dict['subtitles'] = self._extract_mpd_formats_and_subtitles(video_url, video_id)
+                entry_info_dict['formats'], entry_info_dict['subtitles'] = self._extract_mpd_formats_and_subtitles(video_url, video_id, headers=headers)
             elif ext == 'f4m':
-                entry_info_dict['formats'] = self._extract_f4m_formats(video_url, video_id)
+                entry_info_dict['formats'] = self._extract_f4m_formats(video_url, video_id, headers=headers)
             elif re.search(r'(?i)\.(?:ism|smil)/manifest', video_url) and video_url != url:
                 # Just matching .ism/manifest is not enough to be reliably sure
                 # whether it's actually an ISM manifest or some other streaming
